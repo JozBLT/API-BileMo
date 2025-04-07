@@ -8,8 +8,12 @@ use App\Repository\ClientRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ApiResource]
+#[ApiResource(
+    normalizationContext: ['groups' => ['client:read']],
+    denormalizationContext: ['groups' => ['client:write']]
+)]
 #[ORM\Entity(repositoryClass: ClientRepository::class)]
 class Client
 {
@@ -21,15 +25,19 @@ class Client
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['client:read', 'user:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['client:read', 'client:write', 'user:read'])]
     private ?string $name = null;
 
     #[ORM\OneToMany(targetEntity: User::class, mappedBy: 'client')]
+    #[Groups(['client:read'])]
     private Collection $users;
 
     #[ORM\Column]
+    #[Groups(['client:read'])]
     private ?\DateTimeImmutable $createdAt;
 
     public function getId(): ?int
