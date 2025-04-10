@@ -52,6 +52,32 @@ class AppFixtures extends Fixture
             $manager->persist($user);
         }
 
+        // Représentants clients
+        $clientAdmins = [
+            ['email' => 'admin@techcorp.com', 'firstname' => 'Admin', 'lastname' => 'TechCorp', 'client' => $client1],
+            ['email' => 'admin@mobilepro.com', 'firstname' => 'Admin', 'lastname' => 'MobilePro', 'client' => $client2],
+        ];
+
+        foreach ($clientAdmins as $data) {
+            $admin = new User();
+            $admin->setEmail($data['email']);
+            $admin->setFirstname($data['firstname']);
+            $admin->setLastname($data['lastname']);
+            $admin->setRoles(['ROLE_CLIENT']);
+            $admin->setClient($data['client']);
+            $admin->setPassword($this->hasher->hashPassword($admin, 'password'));
+            $manager->persist($admin);
+        }
+
+        // Super admin
+        $superAdmin = new User();
+        $superAdmin->setEmail('admin@bilemo.com');
+        $superAdmin->setFirstname('Super');
+        $superAdmin->setLastname('Admin');
+        $superAdmin->setRoles(['ROLE_ADMIN']);
+        $superAdmin->setPassword($this->hasher->hashPassword($superAdmin, 'adminpassword'));
+        $manager->persist($superAdmin);
+
         // Création de 10 produits
         for ($i = 1; $i <= 10; $i++) {
             $product = new Product();
