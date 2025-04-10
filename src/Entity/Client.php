@@ -12,7 +12,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ApiResource(
     normalizationContext: ['groups' => ['client:read']],
-    denormalizationContext: ['groups' => ['client:write']]
+    denormalizationContext: ['groups' => ['client:write']],
+    security: "is_granted('ROLE_ADMIN')"
 )]
 #[ORM\Entity(repositoryClass: ClientRepository::class)]
 class Client

@@ -18,8 +18,17 @@ use Symfony\Component\Serializer\Annotation\Groups;
     operations: [
         new Get(normalizationContext: ['groups' => ['user:read']]),
         new GetCollection(normalizationContext: ['groups' => ['user:read']]),
-        new Post(denormalizationContext: ['groups' => ['user:write']]),
-        new Delete()
+        new Post(
+            denormalizationContext: ['groups' => ['user:write']],
+            security: "is_granted('ROLE_CLIENT') or is_granted('ROLE_ADMIN')",
+            extraProperties: ['standard_put' => true]
+        ),
+        new Post(
+            uriTemplate: '/admin/users',
+            denormalizationContext: ['groups' => ['admin:user:write']],
+            security: "is_granted('ROLE_ADMIN')"
+        ),
+        new Delete(security: "is_granted('USER_DELETE', object)")
     ],
     normalizationContext: ['groups' => ['user:read']],
     denormalizationContext: ['groups' => ['user:write']]
@@ -41,33 +50,33 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 180, unique: true)]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:read', 'user:write', 'admin:user:write'])]
     private ?string $email = null;
 
     /**
      * @var list<string> The user roles
      */
     #[ORM\Column(type: 'json')]
-    #[Groups(['user:read'])]
+    #[Groups(['user:read', 'admin:user:write'])]
     private array $roles = [];
 
     /**
      * @var ?string The hashed password
      */
     #[ORM\Column(type: 'string')]
-    #[Groups(['user:write'])]
+    #[Groups(['user:write', 'admin:user:write'])]
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:read', 'user:write', 'admin:user:write'])]
     private ?string $firstname = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:read', 'user:write', 'admin:user:write'])]
     private ?string $lastname = null;
 
     #[ORM\ManyToOne(targetEntity: Client::class)]
-    #[Groups(['user:read'])]
+    #[Groups(['user:read', 'admin:user:write'])]
     private ?Client $client = null;
 
     #[ORM\Column]
