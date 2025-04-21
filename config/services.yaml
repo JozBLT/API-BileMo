@@ -23,14 +23,12 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
-    App\DataPersister\UserDataPersister:
-        decorates: 'api_platform.doctrine.orm.state.persist_processor'
-        arguments:
-            $decorated: '@App\DataPersister\UserDataPersister.inner'
-        autoconfigure: false
-        autowire: true
-
     App\Doctrine\Extension\UserExtension:
         tags:
             - { name: 'api_platform.doctrine.orm.query_extension.collection' }
             - { name: 'api_platform.doctrine.orm.query_extension.item' }
+
+    App\State\UserStateProcessor:
+        arguments:
+            $decorated: '@api_platform.doctrine.orm.state.persist_processor'
+        tags: [ 'api_platform.state_processor' ]

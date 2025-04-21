@@ -42,6 +42,7 @@ security:
         - { path: ^/api/contexts, roles: PUBLIC_ACCESS } # Required for Hydra/JSON-LD formats
         - { path: ^/api$, roles: PUBLIC_ACCESS } # So that /api can return JSON documentation without JWT
         - { path: ^/api/login, roles: PUBLIC_ACCESS } # For login
+        - { path: ^/api/register, roles: PUBLIC_ACCESS } # Client Registration
         - { path: ^/api, roles: ROLE_USER } # Everything else in the API requires a valid JWT
 
 when@test:

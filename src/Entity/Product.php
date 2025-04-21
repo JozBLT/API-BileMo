@@ -3,28 +3,39 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use App\Entity\Trait\Timestampable;
 use App\Repository\ProductRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     operations: [
+        new GetCollection(),
         new Get(),
-        new GetCollection()
+        new Post(security: "is_granted('ROLE_ADMIN')"),
+        new Patch(security: "is_granted('ROLE_ADMIN')"),
+        new Delete(security: "is_granted('ROLE_ADMIN')")
     ],
-    normalizationContext: ['groups' => ['product:read']],
-    denormalizationContext: ['groups' => ['product:write']]
+    cacheHeaders: [
+        'max_age' => 3600,
+        'shared_max_age' => 7200,
+        'public' => true
+    ],
+    normalizationContext: ['groups' => ['product:read', 'default:read']],
+    denormalizationContext: ['groups' => ['product:write', 'default:write']]
 )]
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Product
 {
-    public function __construct()
-    {
-        $this->createdAt = new \DateTimeImmutable();
-    }
+    use Timestampable;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -32,29 +43,26 @@ class Product
     #[Groups(['product:read'])]
     private ?int $id = null;
 
+    #[Assert\NotBlank]
     #[ORM\Column(length: 255)]
     #[Groups(['product:read', 'product:write'])]
     private ?string $name = null;
 
+    #[Assert\NotBlank]
     #[ORM\Column(length: 255)]
     #[Groups(['product:read', 'product:write'])]
     private ?string $brand = null;
 
+    #[Assert\NotBlank]
     #[ORM\Column(type: Types::TEXT)]
     #[Groups(['product:read', 'product:write'])]
     private ?string $description = null;
 
+    #[Assert\NotNull]
+    #[Assert\PositiveOrZero]
     #[ORM\Column]
     #[Groups(['product:read', 'product:write'])]
     private ?float $price = null;
-
-    #[ORM\Column]
-    #[Groups(['product:read'])]
-    private ?\DateTimeImmutable $createdAt;
-
-    #[ORM\Column(nullable: true)]
-    #[Groups(['product:read'])]
-    private ?\DateTimeImmutable $updatedAt = null;
 
     public function getId(): ?int
     {
@@ -105,30 +113,6 @@ class Product
     public function setPrice(float $price): static
     {
         $this->price = $price;
-
-        return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
-    {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeImmutable
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
-    {
-        $this->updatedAt = $updatedAt;
 
         return $this;
     }

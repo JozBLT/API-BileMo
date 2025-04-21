@@ -5,6 +5,7 @@ namespace App\DataFixtures;
 use App\Entity\Client;
 use App\Entity\Product;
 use App\Entity\User;
+use DateTimeImmutable;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Exception;
@@ -24,13 +25,19 @@ class AppFixtures extends Fixture
      */
     public function load(ObjectManager $manager): void
     {
+        $now = new DateTimeImmutable();
+
         // Création de 2 clients
         $client1 = new Client();
         $client1->setName('TechCorp');
+        $client1->setCreatedAt($now);
+        $client1->setUpdatedAt($now);
         $manager->persist($client1);
 
         $client2 = new Client();
         $client2->setName('MobilePro');
+        $client2->setCreatedAt($now);
+        $client2->setUpdatedAt($now);
         $manager->persist($client2);
 
         // Création de 4 utilisateurs (2 pour chaque client)
@@ -48,7 +55,9 @@ class AppFixtures extends Fixture
             $user->setLastname($userData['lastname']);
             $user->setRoles(['ROLE_USER']);
             $user->setClient($userData['client']);
-            $user->setPassword($this->hasher->hashPassword($user, 'password')); // mot de passe par défaut
+            $user->setPassword($this->hasher->hashPassword($user, 'password'));
+            $user->setCreatedAt($now);
+            $user->setUpdatedAt($now);
             $manager->persist($user);
         }
 
@@ -66,6 +75,8 @@ class AppFixtures extends Fixture
             $admin->setRoles(['ROLE_CLIENT']);
             $admin->setClient($data['client']);
             $admin->setPassword($this->hasher->hashPassword($admin, 'password'));
+            $admin->setCreatedAt($now);
+            $admin->setUpdatedAt($now);
             $manager->persist($admin);
         }
 
@@ -76,6 +87,8 @@ class AppFixtures extends Fixture
         $superAdmin->setLastname('Admin');
         $superAdmin->setRoles(['ROLE_ADMIN']);
         $superAdmin->setPassword($this->hasher->hashPassword($superAdmin, 'adminpassword'));
+        $superAdmin->setCreatedAt($now);
+        $superAdmin->setUpdatedAt($now);
         $manager->persist($superAdmin);
 
         // Création de 10 produits
@@ -85,8 +98,8 @@ class AppFixtures extends Fixture
             $product->setBrand('BileMo');
             $product->setDescription("Le BileMo Phone $i est un smartphone haut de gamme avec des performances exceptionnelles.");
             $product->setPrice(499.99 + ($i * 25));
-            $product->setCreatedAt(new \DateTimeImmutable('-' . rand(1, 100) . ' days'));
-            $product->setUpdatedAt(null);
+            $product->setCreatedAt(new DateTimeImmutable('-' . rand(1, 100) . ' days'));
+            $product->setUpdatedAt($now);
             $manager->persist($product);
         }
 
