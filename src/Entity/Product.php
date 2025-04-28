@@ -17,16 +17,15 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     operations: [
-        new GetCollection(),
-        new Get(),
+        new GetCollection(
+            cacheHeaders: ['max_age' => 900, 'shared_max_age' => 1800, 'public' => true]
+        ),
+        new Get(
+            cacheHeaders: ['max_age' => 900, 'shared_max_age' => 1800, 'public' => true]
+        ),
         new Post(security: "is_granted('ROLE_ADMIN')"),
         new Patch(security: "is_granted('ROLE_ADMIN')"),
         new Delete(security: "is_granted('ROLE_ADMIN')")
-    ],
-    cacheHeaders: [
-        'max_age' => 3600,
-        'shared_max_age' => 7200,
-        'public' => true
     ],
     normalizationContext: ['groups' => ['product:read', 'default:read']],
     denormalizationContext: ['groups' => ['product:write', 'default:write']]
