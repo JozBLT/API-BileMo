@@ -97,6 +97,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $lastname = null;
 
     #[ORM\ManyToOne(targetEntity: Client::class, inversedBy: 'users')]
+    #[ORM\JoinColumn(onDelete: 'CASCADE')]
     #[Groups(['user:read', 'admin:user:write'])]
     private ?Client $client = null;
 
